@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# file : post-receive
+# desc : This hooks will update a git repository (with git pull) after you "git push"
+# from your local workstation
+#
+# author : Michaël Marineti
+# creation : 2012-09-21
+# modified : 2012-09-21
+#
+# INSTALLATION
+#
+# localhost: local (developer)
+# devhost: used for preprod and gitolite
+# 
+# cd /home/www/dev.mywebsite.com 
+# git clone /home/git/repositories/mywebsite.com
+# 
+# - put that file in /home/git/repositories/mywebsite.com/hooks/post-receive 
+# 
+# The "post-receive" script is run after receive-pack has accepted a pack
+# and the repository has been updated.  It is passed arguments in through
+# stdin in the form
+#  <oldrev> <newrev> <refname>
+# For example:
+#  aa453216d1b3e49e7f6f98441fa56946ddcd6a20 68f7abf4e6f922807889f52bc043ecd31b79f814 refs/heads/master
+
+read oldrev newrev refname
+
+branch=${refname#refs/heads/} 
+dir_to_pull=/home/www/dev.mywebsite.com
+mail=your@email.com
+
+
+if (test "$branch" = "develop") then
+	cd $dir_to_pullb
+	unset GIT_DIR
+	git pull origin $branch
+	res="$?"
+	if (test ! -z "$res") then
+		echo "$dir_to_pull has been updated from $oldrev to $newrev (refname=$refname)"| mail -s "[DEPLOY OK] branch $branch " $mail
+	else
+		echo "error when git pull origin $branch in '$dir_to_pull'. (error=$res). When update from $oldrev to $newrev (refname=$refname)"| mail -s "[DEPLOY ERROR] branch $branch " $mail
+	fi
+# else
+		# echo "ref != develop, nothing has been done :) "| mail -s "[DEV] /dev/null :p" $mail
+fi
+
