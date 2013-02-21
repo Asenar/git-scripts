@@ -33,7 +33,7 @@ mail=your@email.com
 
 
 if (test "$branch" = "develop") then
-	cd $dir_to_pullb
+	cd $dir_to_pull
 	unset GIT_DIR
 	git pull origin $branch
 	res="$?"
